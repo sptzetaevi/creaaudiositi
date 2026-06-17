@@ -186,6 +186,7 @@
       </div>
     </div>
 
+    <button onclick="ttsCaricaVoci()">Aggiorna voci</button>
     <button onclick="ttsLeggi()">Leggi testo</button>
     <button class="secondary" onclick="ttsPausa()">Pausa</button>
     <button class="secondary" onclick="ttsRiprendi()">Riprendi</button>
@@ -203,9 +204,7 @@
       <li>Metti il file MP3 nella stessa cartella dell’<strong>index.html</strong> generato.</li>
     </ol>
 
-    <p class="small">
-      Nota: le voci disponibili dipendono dal dispositivo e dal browser. Su computer diversi potresti trovare voci diverse.
-    </p>
+    <p class="small" id="ttsStato">Nota: le voci disponibili dipendono dal dispositivo e dal browser. Su computer diversi potresti trovare voci diverse.</p>
   </section>
     </div>
   </div>
@@ -227,89 +226,161 @@ function generaHTML(){const config={titolo:valore('titoloSito')||'Sito audio',no
 function scaricaHTML(){let c=document.getElementById('output').textContent;if(!c){generaHTML();c=document.getElementById('output').textContent}const blob=new Blob([c],{type:'text/html;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='index.html';a.click();URL.revokeObjectURL(url)}
 function escapeHtml(str){return String(str||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 function creaIndexFinale(config,nodi){return `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>${escapeHtml(config.titolo)}</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;color:white;font-family:Arial,sans-serif;user-select:none;touch-action:manipulation}#app{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;text-align:center;padding:28px;box-sizing:border-box}.testo{max-width:760px;font-size:clamp(24px,5vw,46px);line-height:1.25;font-weight:bold}.sotto{display:block;margin-top:22px;font-size:clamp(16px,3vw,24px);font-weight:normal;opacity:.85}.angolo{position:fixed;width:50vw;height:50vh;display:none;align-items:center;justify-content:center;text-align:center;padding:18px;box-sizing:border-box;border:2px dashed rgba(255,255,255,.25);background:rgba(255,255,255,.04);font-size:clamp(20px,4vw,34px);font-weight:bold}body.menu .angolo{display:flex}#altoSinistra{top:0;left:0}#altoDestra{top:0;right:0}#bassoSinistra{bottom:0;left:0}#bassoDestra{bottom:0;right:0}#avvio{position:fixed;inset:0;z-index:10;background:#111827;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;box-sizing:border-box}#avvio.nascosto{display:none}#stato{position:fixed;left:8px;right:8px;bottom:8px;text-align:center;font-size:13px;opacity:.65;pointer-events:none}.lampeggia{animation:pulse .65s infinite alternate}@keyframes pulse{from{opacity:.55;transform:scale(.99)}to{opacity:1;transform:scale(1.02)}}</style></head><body><div id="avvio"><div class="testo">Tocca per iniziare<span class="sotto">Al primo tocco partirà l'audio.</span></div></div><div id="app"><div class="testo" id="testo">${escapeHtml(config.titolo)}<span class="sotto">Un clic: pausa/riprendi. Doppio clic: torna indietro. Tre clic: avanti di ${config.saltoTriploClick} secondi.</span></div></div><div class="angolo" id="altoSinistra"></div><div class="angolo" id="altoDestra"></div><div class="angolo" id="bassoSinistra"></div><div class="angolo" id="bassoDestra"></div><div id="stato"></div><audio id="player" preload="auto" playsinline></audio><script>const CONFIG=${JSON.stringify(config,null,2)};const NODI=${JSON.stringify(nodi,null,2)};const player=document.getElementById('player'),testo=document.getElementById('testo'),avvio=document.getElementById('avvio'),stato=document.getElementById('stato');const quadranti={altoSinistra:document.getElementById('altoSinistra'),altoDestra:document.getElementById('altoDestra'),bassoSinistra:document.getElementById('bassoSinistra'),bassoDestra:document.getElementById('bassoDestra')};let nodoCorrente=null,nodoPrecedente=null,modalita='attesa',timerClick=null,conteggioClick=0,finestraIstruzioniAttiva=false,timerFinestraIstruzioni=null;function scrivi(t,s=''){testo.innerHTML=t+(s?'<span class="sotto">'+s+'</span>':'')}function aggiornaStato(m){stato.textContent=m||''}function nascondiAvvio(){avvio.classList.add('nascosto')}function mostraAvvio(){avvio.classList.remove('nascosto')}function nascondiQuadranti(){document.body.classList.remove('menu');Object.values(quadranti).forEach(q=>{q.textContent='';q.style.visibility='visible'})}function mostraQuadranti(n){nascondiAvvio();document.body.classList.add('menu');Object.entries(quadranti).forEach(([p,e])=>{const s=n.scelte&&n.scelte[p];e.textContent=s?s.testo:'';e.style.visibility=s?'visible':'hidden'})}function entraInFullscreen(){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(()=>{})}}catch(e){}}function riproduciNodo(nome,prov=null){const n=NODI[nome];if(!n){scrivi('Nodo non trovato','Controlla il collegamento: '+nome);return}nodoPrecedente=prov||nodoCorrente;nodoCorrente=nome;modalita=n.tipo;nascondiQuadranti();nascondiAvvio();testo.classList.remove('lampeggia');scrivi(n.titolo||nome,n.sottotitolo||'Un clic: pausa/riprendi. Doppio clic: torna indietro. Tre clic: avanti veloce.');player.pause();player.src=n.audio;player.currentTime=0;player.load();const p=player.play();if(p!==undefined)p.then(()=>aggiornaStato('Audio: '+nome)).catch(()=>{mostraAvvio();aggiornaStato('Avvio bloccato: tocca lo schermo.')})}function apriFinestraIstruzioni(){const n=NODI[nodoCorrente];finestraIstruzioniAttiva=true;modalita='finestraIstruzioni';scrivi('Vuoi ascoltare le istruzioni?','Fai doppio tap entro '+CONFIG.secondiFinestraIstruzioni+' secondi. Altrimenti partirà il menù.');testo.classList.add('lampeggia');clearTimeout(timerFinestraIstruzioni);timerFinestraIstruzioni=setTimeout(()=>{if(!finestraIstruzioniAttiva)return;finestraIstruzioniAttiva=false;testo.classList.remove('lampeggia');riproduciNodo(n.dopo||CONFIG.nodoIniziale,nodoCorrente)},CONFIG.secondiFinestraIstruzioni*1000)}function avviaIstruzioni(){const n=NODI[nodoCorrente];clearTimeout(timerFinestraIstruzioni);finestraIstruzioniAttiva=false;testo.classList.remove('lampeggia');riproduciNodo(n.istruzioni,nodoCorrente)}player.addEventListener('ended',()=>{const n=NODI[nodoCorrente];if(!n)return;if(n.tipo==='introduzione'){apriFinestraIstruzioni();return}if(n.tipo==='menu'){mostraQuadranti(n);return}if(n.tipo==='audio'&&n.dopo){riproduciNodo(n.dopo,nodoCorrente);return}if(n.tipo==='storia'&&n.ritorno){riproduciNodo(n.ritorno,nodoCorrente);return}});player.addEventListener('error',()=>{mostraAvvio();scrivi('Audio non trovato','Controlla che il nome del file sia identico al nome scritto nel generatore.');aggiornaStato('File non caricato: '+player.src)});function pausaRiprendi(){if(modalita==='finestraIstruzioni'||modalita==='attesa')return;if(player.paused)player.play().catch(()=>mostraAvvio());else{player.pause();aggiornaStato('Audio in pausa')}}function tornaIndietro(){if(modalita==='finestraIstruzioni'){avviaIstruzioni();return}const n=NODI[nodoCorrente];if(!n)return;if(n.tipo==='storia'&&n.ritorno){riproduciNodo(n.ritorno,nodoCorrente);return}if(nodoPrecedente&&NODI[nodoPrecedente])riproduciNodo(nodoPrecedente,nodoCorrente)}function avantiVeloce(){if(!player.src||isNaN(player.duration)||!isFinite(player.duration))return;player.currentTime=Math.min(player.duration-.1,player.currentTime+CONFIG.saltoTriploClick);aggiornaStato('Avanti di '+CONFIG.saltoTriploClick+' secondi')}function gestisciSequenzaClick(n){if(n===1)pausaRiprendi();else if(n===2)tornaIndietro();else if(n>=3)avantiVeloce()}document.body.addEventListener('click',e=>{if(e.target.classList.contains('angolo'))return;if(e.target.closest('#avvio'))return;conteggioClick++;clearTimeout(timerClick);timerClick=setTimeout(()=>{gestisciSequenzaClick(conteggioClick);conteggioClick=0},320)});avvio.addEventListener('click',e=>{e.stopPropagation();entraInFullscreen();if(modalita==='attesa')riproduciNodo(CONFIG.nodoIniziale);else player.play().then(nascondiAvvio).catch(()=>mostraAvvio())});Object.entries(quadranti).forEach(([pos,el])=>{el.addEventListener('click',e=>{e.stopPropagation();const n=NODI[nodoCorrente];if(!n||!n.scelte||!n.scelte[pos])return;riproduciNodo(n.scelte[pos].vaiA,nodoCorrente)})});<\/script>
+
+
+
 <script>
+let ttsVociDisponibili = [];
+
+function ttsSetStato(messaggio) {
+  const el = document.getElementById("ttsStato");
+  if (el) el.textContent = messaggio;
+}
+
 function ttsCaricaVoci() {
   const select = document.getElementById("ttsVoce");
-  if (!select || !window.speechSynthesis) return;
+  if (!select) return;
 
-  const voci = speechSynthesis.getVoices();
+  if (!("speechSynthesis" in window)) {
+    select.innerHTML = '<option>Sintesi vocale non supportata</option>';
+    ttsSetStato("Questo browser non supporta la sintesi vocale.");
+    return;
+  }
+
+  const voci = window.speechSynthesis.getVoices();
+  ttsVociDisponibili = voci;
+
   select.innerHTML = "";
-
-  voci.forEach((voce, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = voce.name + " — " + voce.lang;
-    if (voce.lang && voce.lang.toLowerCase().startsWith("it")) {
-      option.selected = true;
-    }
-    select.appendChild(option);
-  });
 
   if (!voci.length) {
     const option = document.createElement("option");
-    option.textContent = "Nessuna voce trovata";
+    option.value = "";
+    option.textContent = "Voci non ancora caricate: premi Aggiorna voci";
     select.appendChild(option);
+    ttsSetStato("Le voci non sono ancora disponibili. Premi Aggiorna voci o attendi qualche secondo.");
+    return;
   }
+
+  let primaVoceItaliana = -1;
+
+  voci.forEach((voce, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = voce.name + " — " + voce.lang;
+    select.appendChild(option);
+
+    if (primaVoceItaliana === -1 && voce.lang && voce.lang.toLowerCase().startsWith("it")) {
+      primaVoceItaliana = index;
+    }
+  });
+
+  if (primaVoceItaliana >= 0) {
+    select.value = String(primaVoceItaliana);
+  } else if (voci.length) {
+    select.value = "0";
+  }
+
+  ttsSetStato("Voci caricate: " + voci.length + ". Seleziona una voce e premi Leggi testo.");
 }
 
 function ttsLeggi() {
-  if (!window.speechSynthesis) {
+  if (!("speechSynthesis" in window)) {
     alert("La sintesi vocale non è supportata da questo browser.");
     return;
   }
 
-  const testo = document.getElementById("ttsTesto").value.trim();
+  const testoEl = document.getElementById("ttsTesto");
+  const select = document.getElementById("ttsVoce");
+  const testo = testoEl ? testoEl.value.trim() : "";
+
   if (!testo) {
     alert("Inserisci un testo da leggere.");
     return;
   }
 
-  speechSynthesis.cancel();
+  let voci = window.speechSynthesis.getVoices();
 
-  const utterance = new SpeechSynthesisUtterance(testo);
-  const voci = speechSynthesis.getVoices();
-  const voceIndex = Number(document.getElementById("ttsVoce").value);
-
-  if (voci[voceIndex]) {
-    utterance.voice = voci[voceIndex];
+  if (!voci.length) {
+    ttsCaricaVoci();
+    voci = window.speechSynthesis.getVoices();
   }
 
-  utterance.rate = Number(document.getElementById("ttsVelocita").value || 1);
-  utterance.pitch = Number(document.getElementById("ttsTono").value || 1);
-  utterance.lang = utterance.voice?.lang || "it-IT";
+  window.speechSynthesis.cancel();
 
-  speechSynthesis.speak(utterance);
+  const utterance = new SpeechSynthesisUtterance(testo);
+  const voceIndex = select ? Number(select.value) : NaN;
+
+  if (!Number.isNaN(voceIndex) && voci[voceIndex]) {
+    utterance.voice = voci[voceIndex];
+    utterance.lang = voci[voceIndex].lang || "it-IT";
+  } else {
+    utterance.lang = "it-IT";
+  }
+
+  utterance.rate = Number(document.getElementById("ttsVelocita")?.value || 1);
+  utterance.pitch = Number(document.getElementById("ttsTono")?.value || 1);
+
+  utterance.onstart = () => ttsSetStato("Lettura in corso...");
+  utterance.onend = () => ttsSetStato("Lettura terminata.");
+  utterance.onerror = () => ttsSetStato("Errore durante la lettura. Prova un'altra voce o un altro browser.");
+
+  window.speechSynthesis.speak(utterance);
 }
 
 function ttsPausa() {
-  if (window.speechSynthesis) speechSynthesis.pause();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.pause();
+    ttsSetStato("Lettura in pausa.");
+  }
 }
 
 function ttsRiprendi() {
-  if (window.speechSynthesis) speechSynthesis.resume();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.resume();
+    ttsSetStato("Lettura ripresa.");
+  }
 }
 
 function ttsStop() {
-  if (window.speechSynthesis) speechSynthesis.cancel();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    ttsSetStato("Lettura interrotta.");
+  }
 }
 
 function ttsCopiaNomeFile() {
-  const nome = document.getElementById("ttsNomeFile").value.trim();
+  const nome = document.getElementById("ttsNomeFile")?.value.trim();
   if (!nome) {
     alert("Scrivi prima il nome del file.");
     return;
   }
 
-  navigator.clipboard.writeText(nome).then(() => {
-    alert("Nome file copiato: " + nome);
-  }).catch(() => {
-    alert("Non riesco a copiare automaticamente. Copia manualmente: " + nome);
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(nome).then(() => {
+      alert("Nome file copiato: " + nome);
+    }).catch(() => {
+      alert("Non riesco a copiare automaticamente. Copia manualmente: " + nome);
+    });
+  } else {
+    alert("Copia manualmente: " + nome);
+  }
+}
+
+function ttsAvvioRitardato() {
+  ttsCaricaVoci();
+  setTimeout(ttsCaricaVoci, 500);
+  setTimeout(ttsCaricaVoci, 1500);
+  setTimeout(ttsCaricaVoci, 3000);
 }
 
 if ("speechSynthesis" in window) {
-  speechSynthesis.onvoiceschanged = ttsCaricaVoci;
-  setTimeout(ttsCaricaVoci, 300);
+  window.speechSynthesis.onvoiceschanged = ttsCaricaVoci;
+  document.addEventListener("DOMContentLoaded", ttsAvvioRitardato);
+  setTimeout(ttsAvvioRitardato, 300);
+} else {
+  document.addEventListener("DOMContentLoaded", () => {
+    ttsSetStato("Sintesi vocale non supportata da questo browser.");
+  });
 }
 </script>
 
