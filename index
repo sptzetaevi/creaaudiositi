@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generatore siti audio a nodi</title>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827;line-height:1.45}header{background:#111827;color:white;padding:22px;text-align:center}main{max-width:1100px;margin:0 auto;padding:20px}section{background:white;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.08)}label{display:block;font-weight:bold;margin-top:10px;margin-bottom:4px}input,select,textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px}textarea{min-height:90px;font-family:monospace}button{border:0;border-radius:10px;padding:11px 16px;font-weight:bold;cursor:pointer;background:#2563eb;color:white;margin:6px 4px 6px 0}.secondary{background:#4b5563}.danger{background:#dc2626}.good{background:#16a34a}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.node-card{border:1px solid #e5e7eb;border-radius:12px;padding:14px;background:#f9fafb;margin:12px 0}.small{font-size:13px;color:#4b5563}.quadrante{border:1px dashed #94a3b8;padding:10px;border-radius:10px;margin-top:8px;background:white}.help{background:#eff6ff;border-left:5px solid #2563eb;padding:12px;border-radius:8px}pre{white-space:pre-wrap;background:#111827;color:#e5e7eb;padding:14px;border-radius:12px;max-height:360px;overflow:auto}
+  
+    #guida ul, #guida ol { padding-left:28px; }
+    #guida li { margin:6px 0; }
+    #guida p { margin:8px 0; }
+    
+  
+    .top-guide {
+      margin-bottom:18px;
+    }
+    .top-guide details {
+      background:white;
+      border-radius:14px;
+      padding:0;
+      box-shadow:0 2px 12px rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+    .top-guide summary {
+      cursor:pointer;
+      padding:18px;
+      font-weight:bold;
+      font-size:22px;
+      background:#111827;
+      color:white;
+      list-style:none;
+    }
+    .top-guide summary::-webkit-details-marker {
+      display:none;
+    }
+    .top-guide .guide-content {
+      padding:18px;
+    }
+    .workspace {
+      display:grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap:18px;
+      align-items:start;
+      height:calc(100vh - 150px);
+    }
+    .colonna-scroll {
+      height:100%;
+      overflow-y:auto;
+      padding-right:6px;
+      scroll-behavior:smooth;
+    }
+    .colonna-scroll section:first-child {
+      margin-top:0;
+    }
+    .colonna-scroll::-webkit-scrollbar {
+      width:10px;
+    }
+    .colonna-scroll::-webkit-scrollbar-thumb {
+      background:#9ca3af;
+      border-radius:999px;
+    }
+    .colonna-scroll::-webkit-scrollbar-track {
+      background:#e5e7eb;
+      border-radius:999px;
+    }
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns:1fr;
+        height:auto;
+      }
+      .colonna-scroll {
+        height:auto;
+        overflow:visible;
+        padding-right:0;
+      }
+    }
+
+  </style>
+</head>
+<body>
+<header><h1>Generatore siti audio a nodi</h1><p>Crea un sito audio con menu, storie e quattro quadranti cliccabili.</p><p class="small" style="color:#d1d5db;">A sinistra costruisci i nodi. A destra prepari i testi audio.</p></header>
+
+<main>
+
+  <div class="top-guide">
+    <details>
+      <summary>Guida rapida all’utilizzo</summary>
+      <div class="guide-content">
+        
+
+    <div class="help">
+      Questo generatore serve per creare un sito audio interattivo senza scrivere codice.
+      È utile per storie sociali, audioguide, percorsi guidati, attività in CAA o materiali accessibili basati sull’ascolto.
+    </div>
+
+    <h3>Che cosa sono i nodi audio?</h3>
+    <p>
+      Il sito funziona con una struttura a <strong>nodi</strong>. Ogni nodo è un audio.
+      Un nodo può essere un’introduzione, un menù, una storia sociale o un audio semplice.
+    </p>
+
+    <h3>Tipi di nodo</h3>
+    <p><strong>Introduzione:</strong> è l’audio iniziale. Al termine può aprire una breve finestra per ascoltare le istruzioni.</p>
+    <p><strong>Audio semplice:</strong> è un audio che, quando finisce, porta automaticamente a un altro nodo.</p>
+    <p><strong>Menu:</strong> è un audio che presenta alcune scelte. Al termine compaiono i quattro quadranti dello schermo.</p>
+    <p><strong>Storia:</strong> è un audio finale. Quando termina, torna automaticamente al menu di provenienza.</p>
+
+    <h3>I quattro quadranti</h3>
+    <p>
+      Nei nodi di tipo <strong>menu</strong> puoi decidere cosa succede quando l’utente clicca in:
+    </p>
+    <ul>
+      <li>alto sinistra;</li>
+      <li>alto destra;</li>
+      <li>basso destra;</li>
+      <li>basso sinistra.</li>
+    </ul>
+
+    <h3>Passaggi principali</h3>
+    <ol>
+      <li>Inserisci il titolo del sito.</li>
+      <li>Indica il nodo iniziale, per esempio <strong>introduzione</strong>.</li>
+      <li>Crea i nodi audio.</li>
+      <li>Per ogni nodo scrivi il nome esatto del file audio, per esempio <strong>storia_cinema.mp3</strong>.</li>
+      <li>Nei nodi di tipo menu collega i quattro quadranti agli altri nodi.</li>
+      <li>Clicca su <strong>Genera index.html</strong>.</li>
+      <li>Clicca su <strong>Scarica index.html</strong>.</li>
+    </ol>
+
+    <h3>Comandi nel sito generato</h3>
+    <p><strong>Un clic:</strong> mette in pausa o riprende l’audio.</p>
+    <p><strong>Doppio clic:</strong> torna al nodo precedente e ne riascolta l’audio.</p>
+    <p><strong>Triplo clic:</strong> manda avanti l’audio di alcuni secondi.</p>
+    <p><strong>Clic sui quadranti:</strong> permette di scegliere il percorso successivo.</p>
+
+    <h3>Pubblicazione</h3>
+    <p>
+      Dopo aver scaricato il file <strong>index.html</strong>, mettilo nella stessa cartella dei file audio.
+      Poi puoi caricare la cartella su GitHub Pages, su un server web o su uno spazio cloud.
+    </p>
+  
+      </div>
+    </details>
+  </div>
+
+
+  <div class="workspace">
+    <div class="colonna-scroll colonna-sinistra">
+      <section class="help"><strong>Come funziona:</strong><br>1. Imposta titolo, audio iniziale e istruzioni.<br>2. Crea i nodi: menu, storie o audio semplici.<br>3. Nei menu collega i quattro quadranti ad altri nodi.<br>4. Clicca su <strong>Genera index.html</strong> e poi scarica il file.</section>
+<section><h2>1. Impostazioni generali</h2><div class="grid"><div><label>Titolo sito</label><input id="titoloSito" value="Storie sociali"></div><div><label>Nodo iniziale</label><input id="nodoIniziale" value="introduzione"></div><div><label>Secondi finestra istruzioni</label><input id="secondiFinestra" type="number" value="3"></div><div><label>Triplo clic: avanti di secondi</label><input id="saltoTriplo" type="number" value="10"></div></div></section>
+<section><h2>2. Aggiungi nodo</h2><div class="grid"><div><label>ID nodo</label><input id="nodeId" placeholder="es. menu1, cinema, introduzione"></div><div><label>Tipo nodo</label><select id="nodeType"><option value="menu">menu</option><option value="storia">storia</option><option value="audio">audio semplice</option><option value="introduzione">introduzione</option></select></div><div><label>Titolo visibile</label><input id="nodeTitle" placeholder="es. Prime proposte"></div><div><label>Nome file audio</label><input id="nodeAudio" placeholder="es. audio_menu.mp3"></div></div><div class="grid"><div><label>Sottotitolo</label><input id="nodeSubtitle" placeholder="facoltativo"></div><div><label>Dopo / Ritorno</label><input id="nodeAfter" placeholder="es. menu1"><div class="small">Per introduzione/audio = nodo successivo. Per storia = menu di ritorno.</div></div><div><label>Nodo istruzioni</label><input id="nodeInstructions" placeholder="solo per introduzione, es. istruzioni"></div></div><h3>Quadranti, solo per tipo “menu”</h3><div class="grid"><div class="quadrante"><strong>Alto sinistra</strong><label>Testo</label><input id="asText"><label>Vai a nodo</label><input id="asGo"></div><div class="quadrante"><strong>Alto destra</strong><label>Testo</label><input id="adText"><label>Vai a nodo</label><input id="adGo"></div><div class="quadrante"><strong>Basso destra</strong><label>Testo</label><input id="bdText"><label>Vai a nodo</label><input id="bdGo"></div><div class="quadrante"><strong>Basso sinistra</strong><label>Testo</label><input id="bsText"><label>Vai a nodo</label><input id="bsGo"></div></div><button onclick="aggiungiNodo()">Aggiungi / aggiorna nodo</button><button class="secondary" onclick="pulisciForm()">Pulisci form</button><button class="good" onclick="caricaEsempio()">Carica esempio storie sociali</button></section>
+<section><h2>3. Nodi creati</h2><div id="listaNodi"></div></section>
+<section><h2>4. Genera sito finale</h2><button class="good" onclick="generaHTML()">Genera index.html</button><button onclick="scaricaHTML()">Scarica index.html</button><button class="secondary" onclick="salvaProgetto()">Salva progetto JSON</button><button class="secondary" onclick="caricaDaJSON()">Carica progetto JSON incollato</button><textarea id="jsonBox" placeholder="Qui puoi incollare o copiare il JSON del progetto."></textarea><h3>Anteprima codice generato</h3><pre id="output"></pre></section>
+    </div>
+
+    <div class="colonna-scroll colonna-destra">
+      <section id="testo-audio">
+    <h2>Produzione audio da testo</h2>
+
+    <div class="help">
+      Questa sezione permette di scrivere un testo e ascoltarlo con la sintesi vocale del browser.
+      Per ottenere un vero file <strong>MP3</strong>, è necessario usare un servizio esterno di sintesi vocale
+      oppure un piccolo sistema con server/API. Il browser, da solo, normalmente può leggere il testo,
+      ma non può salvare direttamente la voce sintetica in MP3.
+    </div>
+
+    <label for="ttsNomeFile">Nome consigliato per il file audio</label>
+    <input id="ttsNomeFile" placeholder="es. introduzione.mp3">
+
+    <label for="ttsTesto">Testo da trasformare in audio</label>
+    <textarea id="ttsTesto" style="min-height:180px;" placeholder="Scrivi qui il testo che vuoi far leggere..."></textarea>
+
+    <div class="grid">
+      <div>
+        <label for="ttsVoce">Voce</label>
+        <select id="ttsVoce"></select>
+      </div>
+      <div>
+        <label for="ttsVelocita">Velocità</label>
+        <input id="ttsVelocita" type="number" min="0.5" max="2" step="0.1" value="1">
+      </div>
+      <div>
+        <label for="ttsTono">Tono</label>
+        <input id="ttsTono" type="number" min="0" max="2" step="0.1" value="1">
+      </div>
+    </div>
+
+    <button onclick="ttsLeggi()">Leggi testo</button>
+    <button class="secondary" onclick="ttsPausa()">Pausa</button>
+    <button class="secondary" onclick="ttsRiprendi()">Riprendi</button>
+    <button class="danger" onclick="ttsStop()">Stop</button>
+    <button class="good" onclick="ttsCopiaNomeFile()">Copia nome file</button>
+
+    <h3>Come ottenere il file MP3</h3>
+    <ol>
+      <li>Scrivi il testo in questa sezione.</li>
+      <li>Ascoltalo con il pulsante <strong>Leggi testo</strong>.</li>
+      <li>Quando il testo è pronto, copialo.</li>
+      <li>Incollalo in un servizio di sintesi vocale che esporta in MP3.</li>
+      <li>Scarica il file MP3 e rinominalo con il nome scelto, per esempio <strong>introduzione.mp3</strong>.</li>
+      <li>Inserisci quel nome nel generatore, nel campo <strong>Nome file audio</strong>.</li>
+      <li>Metti il file MP3 nella stessa cartella dell’<strong>index.html</strong> generato.</li>
+    </ol>
+
+    <p class="small">
+      Nota: le voci disponibili dipendono dal dispositivo e dal browser. Su computer diversi potresti trovare voci diverse.
+    </p>
+  </section>
+    </div>
+  </div>
+</main>
+
+<script>
+let nodi = {};
+function valore(id){return document.getElementById(id).value.trim()}
+function setValore(id,v){document.getElementById(id).value=v||""}
+function aggiungiNodo(){const id=valore('nodeId');if(!id){alert('Inserisci un ID nodo.');return}const tipo=valore('nodeType');const nodo={tipo,titolo:valore('nodeTitle')||id,audio:valore('nodeAudio')};const sottotitolo=valore('nodeSubtitle');if(sottotitolo)nodo.sottotitolo=sottotitolo;const dopo=valore('nodeAfter');const istruzioni=valore('nodeInstructions');if(tipo==='introduzione'){if(istruzioni)nodo.istruzioni=istruzioni;if(dopo)nodo.dopo=dopo}if(tipo==='audio'){if(dopo)nodo.dopo=dopo}if(tipo==='storia'){if(dopo)nodo.ritorno=dopo}if(tipo==='menu'){nodo.scelte={};[['altoSinistra','asText','asGo'],['altoDestra','adText','adGo'],['bassoDestra','bdText','bdGo'],['bassoSinistra','bsText','bsGo']].forEach(([pos,t,g])=>{const testo=valore(t),vaiA=valore(g);if(testo&&vaiA)nodo.scelte[pos]={testo,vaiA}})}nodi[id]=nodo;aggiornaLista();pulisciForm()}
+function modificaNodo(id){const n=nodi[id];setValore('nodeId',id);setValore('nodeType',n.tipo);setValore('nodeTitle',n.titolo);setValore('nodeAudio',n.audio);setValore('nodeSubtitle',n.sottotitolo);setValore('nodeAfter',n.tipo==='storia'?n.ritorno:n.dopo);setValore('nodeInstructions',n.istruzioni);setValore('asText',n.scelte?.altoSinistra?.testo);setValore('asGo',n.scelte?.altoSinistra?.vaiA);setValore('adText',n.scelte?.altoDestra?.testo);setValore('adGo',n.scelte?.altoDestra?.vaiA);setValore('bdText',n.scelte?.bassoDestra?.testo);setValore('bdGo',n.scelte?.bassoDestra?.vaiA);setValore('bsText',n.scelte?.bassoSinistra?.testo);setValore('bsGo',n.scelte?.bassoSinistra?.vaiA)}
+function eliminaNodo(id){if(confirm('Eliminare il nodo '+id+'?')){delete nodi[id];aggiornaLista()}}
+function pulisciForm(){['nodeId','nodeTitle','nodeAudio','nodeSubtitle','nodeAfter','nodeInstructions','asText','asGo','adText','adGo','bdText','bdGo','bsText','bsGo'].forEach(id=>setValore(id,''));setValore('nodeType','menu')}
+function aggiornaLista(){const box=document.getElementById('listaNodi');const ids=Object.keys(nodi);if(!ids.length){box.innerHTML='<p>Nessun nodo creato.</p>';return}box.innerHTML=ids.map(id=>{const n=nodi[id];return `<div class="node-card"><h3>${id} <span class="small">(${n.tipo})</span></h3><p><strong>Audio:</strong> ${n.audio||'—'}</p><p><strong>Titolo:</strong> ${n.titolo||'—'}</p><button onclick="modificaNodo('${id}')">Modifica</button><button class="danger" onclick="eliminaNodo('${id}')">Elimina</button></div>`}).join('')}
+function caricaEsempio(){setValore('titoloSito','Storie sociali');setValore('nodoIniziale','introduzione');setValore('secondiFinestra','3');setValore('saltoTriplo','10');nodi={introduzione:{tipo:'introduzione',titolo:'Introduzione',audio:'introduzione.mp3',istruzioni:'istruzioni',dopo:'menu1'},istruzioni:{tipo:'audio',titolo:'Istruzioni',audio:'istruzioni.mp3',dopo:'menu1'},menu1:{tipo:'menu',titolo:'Prime proposte',audio:'cinema,panetteria e bar_menu.mp3',sottotitolo:'Cinema, panetteria, bar oppure altre proposte.',scelte:{altoSinistra:{testo:'Cinema',vaiA:'cinema'},altoDestra:{testo:'Panetteria',vaiA:'panetteria'},bassoDestra:{testo:'Bar',vaiA:'bar'},bassoSinistra:{testo:'Altre proposte',vaiA:'menu2'}}},menu2:{tipo:'menu',titolo:'Castello e medico',audio:'castello e medico_menu.mp3',sottotitolo:'Castello, medico oppure altre proposte.',scelte:{altoSinistra:{testo:'Castello',vaiA:'castello'},altoDestra:{testo:'Medico',vaiA:'medico'},bassoDestra:{testo:'Altre proposte',vaiA:'menu3'},bassoSinistra:{testo:'Prime proposte',vaiA:'menu1'}}},menu3:{tipo:'menu',titolo:'Treno e pizzeria',audio:'treno e pizzeria_menu.mp3',sottotitolo:'Treno, pizzeria oppure ritorno alle proposte precedenti.',scelte:{altoSinistra:{testo:'Treno',vaiA:'treno'},altoDestra:{testo:'Pizzeria',vaiA:'pizzeria'},bassoDestra:{testo:'Proposte precedenti',vaiA:'menu2'},bassoSinistra:{testo:'Prime proposte',vaiA:'menu1'}}},cinema:{tipo:'storia',titolo:'Storia sociale del cinema',audio:'VIDEO CINEMA.mp3',ritorno:'menu1'},panetteria:{tipo:'storia',titolo:'Storia sociale della panetteria',audio:'AUDIO PANETTERIA.mp3',ritorno:'menu1'},bar:{tipo:'storia',titolo:'Storia sociale del bar',audio:'AUDIO STORIA BAR.mp3',ritorno:'menu1'},castello:{tipo:'storia',titolo:'Storia sociale del castello',audio:'AUDIO STORIA DEL CASTELLO.mp3',ritorno:'menu2'},medico:{tipo:'storia',titolo:'Storia sociale del medico',audio:'AUDIO STORIA MEDICO.mp3',ritorno:'menu2'},treno:{tipo:'storia',titolo:'Storia sociale del treno',audio:'AUDIO TRENO.mp3',ritorno:'menu3'},pizzeria:{tipo:'storia',titolo:'Storia sociale della pizzeria',audio:'AUDIO PIZZERIA.mp3',ritorno:'menu3'}};aggiornaLista()}
+function salvaProgetto(){const progetto={config:{titolo:valore('titoloSito'),nodoIniziale:valore('nodoIniziale'),secondiFinestraIstruzioni:Number(valore('secondiFinestra')||3),saltoTriploClick:Number(valore('saltoTriplo')||10)},nodi};document.getElementById('jsonBox').value=JSON.stringify(progetto,null,2)}
+function caricaDaJSON(){try{const p=JSON.parse(document.getElementById('jsonBox').value);if(p.config){setValore('titoloSito',p.config.titolo);setValore('nodoIniziale',p.config.nodoIniziale);setValore('secondiFinestra',p.config.secondiFinestraIstruzioni);setValore('saltoTriplo',p.config.saltoTriploClick)}nodi=p.nodi||{};aggiornaLista()}catch(e){alert('JSON non valido.')}}
+function generaHTML(){const config={titolo:valore('titoloSito')||'Sito audio',nodoIniziale:valore('nodoIniziale')||'introduzione',secondiFinestraIstruzioni:Number(valore('secondiFinestra')||3),saltoTriploClick:Number(valore('saltoTriplo')||10)};document.getElementById('output').textContent=creaIndexFinale(config,nodi)}
+function scaricaHTML(){let c=document.getElementById('output').textContent;if(!c){generaHTML();c=document.getElementById('output').textContent}const blob=new Blob([c],{type:'text/html;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='index.html';a.click();URL.revokeObjectURL(url)}
+function escapeHtml(str){return String(str||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+function creaIndexFinale(config,nodi){return `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>${escapeHtml(config.titolo)}</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111827;color:white;font-family:Arial,sans-serif;user-select:none;touch-action:manipulation}#app{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;text-align:center;padding:28px;box-sizing:border-box}.testo{max-width:760px;font-size:clamp(24px,5vw,46px);line-height:1.25;font-weight:bold}.sotto{display:block;margin-top:22px;font-size:clamp(16px,3vw,24px);font-weight:normal;opacity:.85}.angolo{position:fixed;width:50vw;height:50vh;display:none;align-items:center;justify-content:center;text-align:center;padding:18px;box-sizing:border-box;border:2px dashed rgba(255,255,255,.25);background:rgba(255,255,255,.04);font-size:clamp(20px,4vw,34px);font-weight:bold}body.menu .angolo{display:flex}#altoSinistra{top:0;left:0}#altoDestra{top:0;right:0}#bassoSinistra{bottom:0;left:0}#bassoDestra{bottom:0;right:0}#avvio{position:fixed;inset:0;z-index:10;background:#111827;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;box-sizing:border-box}#avvio.nascosto{display:none}#stato{position:fixed;left:8px;right:8px;bottom:8px;text-align:center;font-size:13px;opacity:.65;pointer-events:none}.lampeggia{animation:pulse .65s infinite alternate}@keyframes pulse{from{opacity:.55;transform:scale(.99)}to{opacity:1;transform:scale(1.02)}}</style></head><body><div id="avvio"><div class="testo">Tocca per iniziare<span class="sotto">Al primo tocco partirà l'audio.</span></div></div><div id="app"><div class="testo" id="testo">${escapeHtml(config.titolo)}<span class="sotto">Un clic: pausa/riprendi. Doppio clic: torna indietro. Tre clic: avanti di ${config.saltoTriploClick} secondi.</span></div></div><div class="angolo" id="altoSinistra"></div><div class="angolo" id="altoDestra"></div><div class="angolo" id="bassoSinistra"></div><div class="angolo" id="bassoDestra"></div><div id="stato"></div><audio id="player" preload="auto" playsinline></audio><script>const CONFIG=${JSON.stringify(config,null,2)};const NODI=${JSON.stringify(nodi,null,2)};const player=document.getElementById('player'),testo=document.getElementById('testo'),avvio=document.getElementById('avvio'),stato=document.getElementById('stato');const quadranti={altoSinistra:document.getElementById('altoSinistra'),altoDestra:document.getElementById('altoDestra'),bassoSinistra:document.getElementById('bassoSinistra'),bassoDestra:document.getElementById('bassoDestra')};let nodoCorrente=null,nodoPrecedente=null,modalita='attesa',timerClick=null,conteggioClick=0,finestraIstruzioniAttiva=false,timerFinestraIstruzioni=null;function scrivi(t,s=''){testo.innerHTML=t+(s?'<span class="sotto">'+s+'</span>':'')}function aggiornaStato(m){stato.textContent=m||''}function nascondiAvvio(){avvio.classList.add('nascosto')}function mostraAvvio(){avvio.classList.remove('nascosto')}function nascondiQuadranti(){document.body.classList.remove('menu');Object.values(quadranti).forEach(q=>{q.textContent='';q.style.visibility='visible'})}function mostraQuadranti(n){nascondiAvvio();document.body.classList.add('menu');Object.entries(quadranti).forEach(([p,e])=>{const s=n.scelte&&n.scelte[p];e.textContent=s?s.testo:'';e.style.visibility=s?'visible':'hidden'})}function entraInFullscreen(){try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(()=>{})}}catch(e){}}function riproduciNodo(nome,prov=null){const n=NODI[nome];if(!n){scrivi('Nodo non trovato','Controlla il collegamento: '+nome);return}nodoPrecedente=prov||nodoCorrente;nodoCorrente=nome;modalita=n.tipo;nascondiQuadranti();nascondiAvvio();testo.classList.remove('lampeggia');scrivi(n.titolo||nome,n.sottotitolo||'Un clic: pausa/riprendi. Doppio clic: torna indietro. Tre clic: avanti veloce.');player.pause();player.src=n.audio;player.currentTime=0;player.load();const p=player.play();if(p!==undefined)p.then(()=>aggiornaStato('Audio: '+nome)).catch(()=>{mostraAvvio();aggiornaStato('Avvio bloccato: tocca lo schermo.')})}function apriFinestraIstruzioni(){const n=NODI[nodoCorrente];finestraIstruzioniAttiva=true;modalita='finestraIstruzioni';scrivi('Vuoi ascoltare le istruzioni?','Fai doppio tap entro '+CONFIG.secondiFinestraIstruzioni+' secondi. Altrimenti partirà il menù.');testo.classList.add('lampeggia');clearTimeout(timerFinestraIstruzioni);timerFinestraIstruzioni=setTimeout(()=>{if(!finestraIstruzioniAttiva)return;finestraIstruzioniAttiva=false;testo.classList.remove('lampeggia');riproduciNodo(n.dopo||CONFIG.nodoIniziale,nodoCorrente)},CONFIG.secondiFinestraIstruzioni*1000)}function avviaIstruzioni(){const n=NODI[nodoCorrente];clearTimeout(timerFinestraIstruzioni);finestraIstruzioniAttiva=false;testo.classList.remove('lampeggia');riproduciNodo(n.istruzioni,nodoCorrente)}player.addEventListener('ended',()=>{const n=NODI[nodoCorrente];if(!n)return;if(n.tipo==='introduzione'){apriFinestraIstruzioni();return}if(n.tipo==='menu'){mostraQuadranti(n);return}if(n.tipo==='audio'&&n.dopo){riproduciNodo(n.dopo,nodoCorrente);return}if(n.tipo==='storia'&&n.ritorno){riproduciNodo(n.ritorno,nodoCorrente);return}});player.addEventListener('error',()=>{mostraAvvio();scrivi('Audio non trovato','Controlla che il nome del file sia identico al nome scritto nel generatore.');aggiornaStato('File non caricato: '+player.src)});function pausaRiprendi(){if(modalita==='finestraIstruzioni'||modalita==='attesa')return;if(player.paused)player.play().catch(()=>mostraAvvio());else{player.pause();aggiornaStato('Audio in pausa')}}function tornaIndietro(){if(modalita==='finestraIstruzioni'){avviaIstruzioni();return}const n=NODI[nodoCorrente];if(!n)return;if(n.tipo==='storia'&&n.ritorno){riproduciNodo(n.ritorno,nodoCorrente);return}if(nodoPrecedente&&NODI[nodoPrecedente])riproduciNodo(nodoPrecedente,nodoCorrente)}function avantiVeloce(){if(!player.src||isNaN(player.duration)||!isFinite(player.duration))return;player.currentTime=Math.min(player.duration-.1,player.currentTime+CONFIG.saltoTriploClick);aggiornaStato('Avanti di '+CONFIG.saltoTriploClick+' secondi')}function gestisciSequenzaClick(n){if(n===1)pausaRiprendi();else if(n===2)tornaIndietro();else if(n>=3)avantiVeloce()}document.body.addEventListener('click',e=>{if(e.target.classList.contains('angolo'))return;if(e.target.closest('#avvio'))return;conteggioClick++;clearTimeout(timerClick);timerClick=setTimeout(()=>{gestisciSequenzaClick(conteggioClick);conteggioClick=0},320)});avvio.addEventListener('click',e=>{e.stopPropagation();entraInFullscreen();if(modalita==='attesa')riproduciNodo(CONFIG.nodoIniziale);else player.play().then(nascondiAvvio).catch(()=>mostraAvvio())});Object.entries(quadranti).forEach(([pos,el])=>{el.addEventListener('click',e=>{e.stopPropagation();const n=NODI[nodoCorrente];if(!n||!n.scelte||!n.scelte[pos])return;riproduciNodo(n.scelte[pos].vaiA,nodoCorrente)})});<\/script>
+<script>
+function ttsCaricaVoci() {
+  const select = document.getElementById("ttsVoce");
+  if (!select || !window.speechSynthesis) return;
+
+  const voci = speechSynthesis.getVoices();
+  select.innerHTML = "";
+
+  voci.forEach((voce, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = voce.name + " — " + voce.lang;
+    if (voce.lang && voce.lang.toLowerCase().startsWith("it")) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  });
+
+  if (!voci.length) {
+    const option = document.createElement("option");
+    option.textContent = "Nessuna voce trovata";
+    select.appendChild(option);
+  }
+}
+
+function ttsLeggi() {
+  if (!window.speechSynthesis) {
+    alert("La sintesi vocale non è supportata da questo browser.");
+    return;
+  }
+
+  const testo = document.getElementById("ttsTesto").value.trim();
+  if (!testo) {
+    alert("Inserisci un testo da leggere.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(testo);
+  const voci = speechSynthesis.getVoices();
+  const voceIndex = Number(document.getElementById("ttsVoce").value);
+
+  if (voci[voceIndex]) {
+    utterance.voice = voci[voceIndex];
+  }
+
+  utterance.rate = Number(document.getElementById("ttsVelocita").value || 1);
+  utterance.pitch = Number(document.getElementById("ttsTono").value || 1);
+  utterance.lang = utterance.voice?.lang || "it-IT";
+
+  speechSynthesis.speak(utterance);
+}
+
+function ttsPausa() {
+  if (window.speechSynthesis) speechSynthesis.pause();
+}
+
+function ttsRiprendi() {
+  if (window.speechSynthesis) speechSynthesis.resume();
+}
+
+function ttsStop() {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+}
+
+function ttsCopiaNomeFile() {
+  const nome = document.getElementById("ttsNomeFile").value.trim();
+  if (!nome) {
+    alert("Scrivi prima il nome del file.");
+    return;
+  }
+
+  navigator.clipboard.writeText(nome).then(() => {
+    alert("Nome file copiato: " + nome);
+  }).catch(() => {
+    alert("Non riesco a copiare automaticamente. Copia manualmente: " + nome);
+  });
+}
+
+if ("speechSynthesis" in window) {
+  speechSynthesis.onvoiceschanged = ttsCaricaVoci;
+  setTimeout(ttsCaricaVoci, 300);
+}
+</script>
+
+</body></html>`}
+aggiornaLista();
+</script>
+</body>
+</html>
